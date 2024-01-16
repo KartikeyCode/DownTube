@@ -7,10 +7,8 @@ from pytube import YouTube
 import requests
 
 
-
 def download_video(link, choice):
     yt = YouTube(link)
-    
     if choice == '1':
         stream = yt.streams.filter(only_audio=True).first()
     elif choice == '2':
@@ -19,8 +17,8 @@ def download_video(link, choice):
         return None
     
     if stream:
-        stream.download(output_path="./downtube/gaane")
-        return stream.title
+        stream.download(output_path="./downtube/gaane",filename=stream.title.replace(" ","")+".mp4")
+        return stream.title 
     else:
         return None
 @app.route('/download', methods=['POST'])
@@ -28,7 +26,6 @@ def download():
     data = request.json #Takes data from the body of request in raw format ex: {"link": "https://www.youtube.com/watch?v=6nTcdw7bVdc", "choice": "1"}
     link = data.get('link') #finds link from above data (youtube link)
     choice = data.get('choice') #finds choice from above data (1 or 2)
-
     if link and choice:
         title = download_video(link, choice)
         if title:

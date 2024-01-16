@@ -2,25 +2,13 @@
 
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import useDownloader from 'react-use-downloader';
 
 export default function Home() {
-  const { size, elapsed, percentage, download, cancel, error, isInProgress } = useDownloader();
   
   const [link, setLink] = useState('');
   const [choice, setChoice] = useState('1');
   const [successMessage, setSuccessMessage] = useState('');
-  const [title,setTitle] = useState('');
-  const [fileurl,setFileUrl] = useState('')
-
-  useEffect(() => {
-    // Perform actions after 'title' state is updated
-    if (title) {
-      // Use ngrok URL and append the local file path
-      setFileUrl(`https://randomstring.ngrok.io/gaane/${title}`);
-    }
-  }, [title]);
-  
+  const [downloadUrl, setDownloadUrl] = useState(null);
 
   const handleSubmit = async () => {
     try {
@@ -33,20 +21,35 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        setSuccessMessage(result.message);
-        setTitle(result.title + ".mp4")
+        // Trigger the file download by creating a blob and using URL.createObjectURL
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        // Set the download URL in state
+        setDownloadUrl(url);
+        setSuccessMessage("Download successful!");
       } else {
         const error = await response.json();
         alert(`Error: ${error.message}`);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
-  
+  const handleDownload = () => {
+    if (downloadUrl) {
+      // Create a link element and trigger a click to start the download
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "downloaded_file.mp4"; // You can set the desired file name here
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div className='flex flex-col justify-center items-center h-screen p-4'>
      
@@ -74,13 +77,11 @@ export default function Home() {
     {successMessage && (
         <div className='mt-5 flex flex-col'>
           <p className='text-2xl'>{successMessage} </p>
-          <a href={fileurl} download={title}>
-          <div
-
+          <button
+            onClick={handleDownload}
             className='bg-[#00A6ED] p-4 rounded-2xl flex items-center justify-center text-white text-4xl hover:scale-110 transition-all mt-5'
           >Download
-          </div>
-            </a>
+          </button>
         </div>
       )}
 
