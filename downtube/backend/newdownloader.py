@@ -32,6 +32,10 @@ def download_video(link, choice):
     else:
         return None
 
+@app.route('/test')
+def test():
+    return "Testing Testing"
+
 @app.route('/download', methods=['POST'])
 def download():
     data = request.json

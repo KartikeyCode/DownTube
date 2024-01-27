@@ -1,0 +1,14 @@
+{
+    "builds":[
+        {
+            "src":"backend/newdownloader.py",
+            "use":"@vercel/python"
+        }
+    ],
+    "routes":[
+        {
+            "src":"/(.*)",
+            "dest":"backend/newdownloader.py"
+        }
+    ]
+}
